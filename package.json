@@ -2,6 +2,7 @@
   "name": "voice-radar-server",
   "version": "1.0.0",
   "main": "app.ts",
+  "type": "module",
   "scripts": {
     "start": "nodemon app.ts"
   },
