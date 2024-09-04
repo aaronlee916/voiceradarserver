@@ -1,6 +1,7 @@
-import express from 'express'
+
 import { UserData } from './assets/data/userdata'
 
+const express=require('express')
 const app = express()
 
 app.get('/v1/', (req, res) => {
