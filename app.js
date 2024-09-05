@@ -31,5 +31,5 @@ app.post("/v1/addUser", (req, res) => {
 
 });
 app.listen( process.env.PORT||3000, () => {
-  console.log(`Server running on https://voiceradarserver.onrender.com/${process.env.PORT}`);
+  console.log(`Server running on https://voiceradarserver.onrender.com:${process.env.PORT}`);
 });
