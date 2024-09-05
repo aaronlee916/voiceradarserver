@@ -30,6 +30,6 @@ app.get("/v1/getUser", (req, res) => {
 app.post("/v1/addUser", (req, res) => {
 
 });
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
+app.listen( process.env.PORT||3000, () => {
+  console.log(`Server running on https://voiceradarserver.onrender.com/${process.env.PORT}`);
 });
