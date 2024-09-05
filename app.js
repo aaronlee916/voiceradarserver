@@ -16,6 +16,9 @@ app.get("/v1/getAvatar", (req, res) => {
     }
   });
 });
+app.get('/v1/getAllUsers',(req,res)=>{
+    res.send(UserData)
+})
 //获取单个用户信息
 app.get("/v1/getUser", (req, res) => {
   let id = req.query.id;
