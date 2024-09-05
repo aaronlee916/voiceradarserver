@@ -1,6 +1,8 @@
 import express from "express";
 import fs from "fs";
 import { UserData } from "./assets/data/userdata.js";
+import { trendingCV, trendingStaff } from "./assets/data/trending.js";
+
 
 const app = express();
 
@@ -16,6 +18,15 @@ app.get("/v1/getAvatar", (req, res) => {
     }
   });
 });
+//获取人气最高CV
+app.get('/v1/getTrendingCV',(req,res)=>{
+  res.send(trendingCV)
+})
+//获取人气最高Staff
+app.get('/v1/getTrendingStaff',(req,res)=>{
+  res.send(trendingStaff)
+})
+//获取所有用户
 app.get('/v1/getAllUsers',(req,res)=>{
     res.send(UserData)
 })
