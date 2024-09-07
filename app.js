@@ -6,11 +6,14 @@ import { trendingCV, trendingStaff } from "./assets/data/trending.js";
 
 const app = express();
 
+const avatarRoot = "./assets/images/avatars/";
+const dataRoot= "./assets/data/"
+
 //获取用户的头像
 app.get("/v1/getAvatar", (req, res) => {
-  const dirname = "./assets/images/avatars/";
+  
   let id = req.query.id;
-  fs.readFile(dirname + `${id}.png`, (err, data) => {
+  fs.readFile(avatarRoot + `${id}.png`, (err, data) => {
     if (!err) {
       res.send(data);
     } else {
@@ -35,16 +38,41 @@ app.get("/v1/getUser", (req, res) => {
   let id = req.query.id;
   for (let item of UserData) {
     if (id == item.id) {
-      res.send(item);
+      res.send(item)
       break;
     }
   }
 });
-//添加用户
+//添加用户,会写入文件
 app.post("/v1/addUser", (req, res) => {
   UserData.push(req.query.user)
+  fs.writeFile(dataRoot+'userdata.js',UserData,(err)=>{
+    if(!err){
+      res.send('Success!')
+    }
+    else{
+      res.send(err)
+    }
+  })
   res.send(UserData)
 });
+//删除用户信息，会写入文件
+app.delete('/v1/deleteUser',(req,res)=>{
+  for (let item of UserData) {
+    if (req.query.id == item.id) {
+      UserData.splice(req.query.id,1)
+      break;
+    }
+  }
+  fs.writeFile(dataRoot+'userdata.js',UserData,(err)=>{
+    if(!err){
+      res.send('Success!')
+    }
+    else{
+      res.send(err)
+    }
+  })
+})
 app.listen( process.env.PORT||3000, () => {
   console.log(`Server running on https://voiceradarserver.onrender.com`);
 });
