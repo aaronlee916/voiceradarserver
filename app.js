@@ -42,7 +42,8 @@ app.get("/v1/getUser", (req, res) => {
 });
 //添加用户
 app.post("/v1/addUser", (req, res) => {
-
+  UserData.push(req.query.user)
+  res.send(UserData)
 });
 app.listen( process.env.PORT||3000, () => {
   console.log(`Server running on https://voiceradarserver.onrender.com`);
