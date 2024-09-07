@@ -56,6 +56,27 @@ app.post("/v1/addUser", (req, res) => {
   })
   res.send(UserData)
 });
+app.post("/v1/updateUser", (req, res) => {
+  let newUserData=[]
+  UserData.map((item)=>{
+    if(item.id==req.query.id){
+      newUserData.push(req.query.user)
+    }
+    else{
+      newUserData.push(item)
+    }
+  })
+  fs.writeFile(dataRoot+'userdata.js',newUserData,(err)=>{
+    if(!err){
+      res.send(newUserData)
+      res.send('Success!')
+    }
+    else{
+      res.send(err)
+    }
+  })
+  res.send(UserData)
+});
 //删除用户信息，会写入文件
 app.delete('/v1/deleteUser',(req,res)=>{
   for (let item of UserData) {
