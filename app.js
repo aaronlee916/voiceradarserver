@@ -59,7 +59,7 @@ app.post("/v1/addUser", (req, res) => {
 app.post("/v1/updateUser", (req, res) => {
   let newUserData=[]
   UserData.map((item)=>{
-    if(item.id==req.query.id){
+    if(item.id==req.query.user.id){
       newUserData.push(req.query.user)
     }
     else{
@@ -75,7 +75,6 @@ app.post("/v1/updateUser", (req, res) => {
       res.send(err)
     }
   })
-  res.send(UserData)
 });
 //删除用户信息，会写入文件
 app.delete('/v1/deleteUser',(req,res)=>{
