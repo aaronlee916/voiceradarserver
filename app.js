@@ -45,19 +45,30 @@ app.get("/v1/getUser", (req, res) => {
 });
 //添加用户,会写入文件
 app.post("/v1/addUser", (req, res) => {
-  UserData.push(req.query);
-  fs.writeFile(
-    dataRoot + "userdata.js",
-    "export default " + JSON.stringify(UserData),
-    (err) => {
-      if (!err) {
-        res.send("Success!");
-      } else {
-        res.send(err);
-      }
+  let hasDuplicate = false;
+  for (let item of UserData) {
+    if (item.id == req.body.id) {
+      hasDuplicate = true;
+      break;
     }
-  );
-  res.send(UserData);
+  }
+  if (!hasDuplicate) {
+    UserData.push(req.body)
+    fs.writeFile(
+      dataRoot + "userdata.js",
+      "export default " + JSON.stringify(UserData),
+      (err) => {
+        if (!err) {
+          res.send(UserData);
+        } else {
+          res.send(err);
+        }
+      }
+    );
+  }
+  else{
+    res.send(UserData);
+  }
 });
 app.post("/v1/updateUser", (req, res) => {
   let newUserData = [];
