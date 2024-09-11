@@ -3,9 +3,13 @@ import fs from "fs";
 import UserData from "./assets/data/userdata.js";
 import { trendingCV, trendingStaff } from "./assets/data/trending.js";
 
+
 const app = express();
+const cors= require('cors')
 app.use(express.json()); // 用于解析 JSON 类型的请求体
 app.use(express.urlencoded({ extended: true })); // 用于解析 URL-encoded 类型的请求体
+app.use(cors())
+
 
 const avatarRoot = "./assets/images/avatars/";
 const dataRoot = "./assets/data/";
@@ -15,12 +19,14 @@ app.get("/v1/getAvatar", (req, res) => {
   let id = req.query.id;
   fs.readFile(avatarRoot + `${id}.png`, (err, data) => {
     if (!err) {
+      res.set("Content-Type", "image/jpeg");
       res.send(data);
     } else {
       console.log(err);
     }
   });
 });
+
 //获取人气最高CV
 app.get("/v1/getTrendingCV", (req, res) => {
   res.send(trendingCV);
@@ -53,7 +59,7 @@ app.post("/v1/addUser", (req, res) => {
     }
   }
   if (!hasDuplicate) {
-    UserData.push(req.body)
+    UserData.push(req.body);
     fs.writeFile(
       dataRoot + "userdata.js",
       "export default " + JSON.stringify(UserData),
@@ -65,8 +71,7 @@ app.post("/v1/addUser", (req, res) => {
         }
       }
     );
-  }
-  else{
+  } else {
     res.send(UserData);
   }
 });
@@ -94,8 +99,8 @@ app.post("/v1/updateUser", (req, res) => {
 //删除用户信息，会写入文件
 app.delete("/v1/deleteUser", (req, res) => {
   for (let item of UserData) {
-    if (req.query.id == item.id) {
-      UserData.splice(req.query.id, 1);
+    if (req.body.id == item.id) {
+      UserData.splice(req.body.id, 1);
       break;
     }
   }

@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^5.19.1",
+    "cors": "^2.8.5",
     "express": "^4.19.2",
     "swagger-ui": "^5.17.14",
     "swagger-ui-express": "^5.0.1",
