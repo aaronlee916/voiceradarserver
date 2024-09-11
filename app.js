@@ -2,10 +2,9 @@ import express from "express";
 import fs from "fs";
 import UserData from "./assets/data/userdata.js";
 import { trendingCV, trendingStaff } from "./assets/data/trending.js";
-
+import cors from 'cors'
 
 const app = express();
-const cors= require('cors')
 app.use(express.json()); // 用于解析 JSON 类型的请求体
 app.use(express.urlencoded({ extended: true })); // 用于解析 URL-encoded 类型的请求体
 app.use(cors())
