@@ -2,21 +2,23 @@ import express from "express";
 import fs from "fs";
 import UserData from "./assets/data/userdata.js";
 import { trendingCV, trendingStaff } from "./assets/data/trending.js";
-import cors from 'cors'
+import cors from "cors";
+import { promisify } from "util";
 
 const app = express();
 app.use(express.json()); // 用于解析 JSON 类型的请求体
 app.use(express.urlencoded({ extended: true })); // 用于解析 URL-encoded 类型的请求体
-app.use(cors())
-
+app.use(cors());
 
 const avatarRoot = "./assets/images/avatars/";
 const dataRoot = "./assets/data/";
+const readFile = promisify(fs.readFile);
+const writeFile = promisify(fs.writeFile);
 
 //获取用户的头像
 app.get("/v1/getAvatar", (req, res) => {
   let id = req.query.id;
-  fs.readFile(avatarRoot + `${id}.png`, (err, data) => {
+  readFile(avatarRoot + `${id}.png`, (err, data) => {
     if (!err) {
       res.set("Content-Type", "image/jpeg");
       res.send(data);
@@ -83,7 +85,7 @@ app.post("/v1/updateUser", (req, res) => {
       newUserData.push(item);
     }
   });
-  fs.writeFile(
+  writeFile(
     dataRoot + "userdata.js",
     "export default " + JSON.stringify(newUserData),
     (err) => {
@@ -103,7 +105,7 @@ app.delete("/v1/deleteUser", (req, res) => {
       break;
     }
   }
-  fs.writeFile(
+  writeFile(
     dataRoot + "userdata.js",
     "export default " + JSON.stringify(UserData),
     (err) => {
