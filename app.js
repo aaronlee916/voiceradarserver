@@ -1,9 +1,11 @@
 import express from "express";
-import fs from "fs";
+import fs, { read } from "fs";
 import UserData from "./assets/data/userdata.js";
 import { trendingCV, trendingStaff } from "./assets/data/trending.js";
 import cors from "cors";
 import { promisify } from "util";
+import multer from "multer";
+
 
 const app = express();
 app.use(express.json()); // 用于解析 JSON 类型的请求体
@@ -14,6 +16,7 @@ const avatarRoot = "./assets/images/avatars/";
 const dataRoot = "./assets/data/";
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
+const uploads=multer({dest:'/assets'})
 
 //获取用户的头像
 app.get("/v1/getAvatar", (req, res) => {
@@ -52,29 +55,34 @@ app.get("/v1/getUser", (req, res) => {
 });
 //添加用户,会写入文件
 app.post("/v1/addUser", (req, res) => {
-  let hasDuplicate = false;
-  for (let item of UserData) {
-    if (item.id == req.body.id) {
-      hasDuplicate = true;
-      break;
+  let newUser={}
+  //查找可用ID
+  for(let i=0;i<Number.MAX_VALUE;i++){
+    let isOccupied=false
+    for(let item of UserData){
+      if(item.id==i){
+        isOccupied=true
+        break
+      }
+    }
+    if(!isOccupied){
+      let newUserId=i
+      newUser=req.body
+      newUser.id=newUserId
     }
   }
-  if (!hasDuplicate) {
-    UserData.push(req.body);
-    fs.writeFile(
-      dataRoot + "userdata.js",
-      "export default " + JSON.stringify(UserData),
-      (err) => {
-        if (!err) {
-          res.send(UserData);
-        } else {
-          res.send(err);
-        }
+  UserData.push(newUser);
+  fs.writeFile(
+    dataRoot + "userdata.js",
+    "export default " + JSON.stringify(UserData),
+    (err) => {
+      if (!err) {
+        res.send(UserData);
+      } else {
+        res.send(err);
       }
-    );
-  } else {
-    res.send(UserData);
-  }
+    }
+  );
 });
 app.post("/v1/updateUser", (req, res) => {
   let newUserData = [];
@@ -97,6 +105,33 @@ app.post("/v1/updateUser", (req, res) => {
     }
   );
 });
+
+//搜索CV API，目前只能GET用户名完全一致的用户
+app.get("/v1/searchCV", (req, res) => {
+  let queryName = req.query.name;
+  let isCV = req.query.isCV;
+  let result = [];
+  for (let item of UserData) {
+    if (item.name == queryName && item.isCV == isCV) {
+      result.push(item);
+    }
+  }
+  res.send(result);
+});
+
+//搜索Staff API，目前只能GET用户名完全一致的用户
+app.get("/v1/searchStaff", (req, res) => {
+  let queryName = req.query.name;
+  let isStaff = req.query.isStaff;
+  let result = [];
+  for (let item of UserData) {
+    if (item.name == queryName && item.isStaff == isStaff) {
+      result.push(item);
+    }
+  }
+  res.send(result);
+});
+
 //删除用户信息，会写入文件
 app.delete("/v1/deleteUser", (req, res) => {
   for (let item of UserData) {
@@ -117,6 +152,25 @@ app.delete("/v1/deleteUser", (req, res) => {
     }
   );
 });
+
+
+//写入用户头像
+app.post('/v1/uploadAvatar',uploads.single('avatar'),(req,res,next)=>{
+  
+})
+
+//写入用户音频
+app.post('/v1/uploadDemo',uploads.single('demo'),(req,res)=>{
+
+})
+
+app.get('/v1/getDemo',(req,res)=>{
+  let id=req.query.id
+  readFile(`assets/audio/${id}.mp3`,(err,data)=>{
+    res.send(data)
+  })
+})
+
 app.listen(process.env.PORT || 3000, () => {
-  console.log(`Server running on https://voiceradarserver.onrender.com`);
+  console.log(`Server running on localhost:${process.env.PORT || 3000}`);
 });
