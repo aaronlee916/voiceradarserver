@@ -1,6 +1,5 @@
 import express from "express";
 import fs from "fs";
-import UserData from "./assets/data/userdata.js";
 import { trendingCV, trendingStaff } from "./assets/data/trending.js";
 import cors from "cors";
 import { promisify } from "util";
@@ -58,86 +57,79 @@ app.get("/v1/getUser", async (req, res) => {
 });
 //添加用户,会写入文件
 app.post("/v1/addUser", async (req, res) => {
-  let currMaxId=await prisma.user.count()
+  let currMaxId = await prisma.user.count();
   await prisma.user.create({
     data: {
       name: req.body.name,
       sex: req.body.sex,
-      password:req.body.password,
-      email:req.body.email,
-      phoneNumber:req.body.phoneNumber,
-      UserDescription:req.body.UserDescription,
-      avatarLink:`./assets/images/${currMaxId+1}.png`
+      password: req.body.password,
+      email: req.body.email,
+      phoneNumber: req.body.phoneNumber,
+      UserDescription: req.body.UserDescription,
+      avatarLink: `./assets/images/${currMaxId + 1}.png`,
     },
   });
 });
-app.post("/v1/updateUser", (req, res) => {
-  let newUserData = [];
-  UserData.map((item) => {
-    if (item.id == req.body.id) {
-      newUserData.push(req.body);
-    } else {
-      newUserData.push(item);
-    }
+app.post("/v1/updateUser", async (req, res) => {
+  let updatedUser = req.body;
+  let id = req.query.id;
+  await prisma.user.update({
+    where: {
+      id,
+    },
+    data: {
+      name: updatedUser.name,
+      sex: updatedUser.sex,
+      password: updatedUser.sex,
+      phoneNumber: updatedUser.phoneNumber,
+      UserDescription: updatedUser.UserDescription,
+      email: updatedUser.email,
+    },
   });
-  writeFile(
-    dataRoot + "userdata.js",
-    "export default " + JSON.stringify(newUserData),
-    (err) => {
-      if (!err) {
-        res.send(newUserData);
-      } else {
-        res.send(err);
-      }
-    }
-  );
+  console.log(await prisma.user.findMany());
 });
 
 //搜索CV API，目前只能GET用户名完全一致的用户
-app.get("/v1/searchCV", (req, res) => {
-  let queryName = req.query.name;
-  let isCV = req.query.isCV;
-  let result = [];
-  for (let item of UserData) {
-    if (item.name == queryName && item.isCV == isCV) {
-      result.push(item);
-    }
-  }
-  res.send(result);
+app.get("/v1/searchCV", async (req, res) => {
+  res.send(
+    await prisma.artist.findMany({
+      where: {
+        name: req.query.name,
+        isCV: true,
+      },
+    })
+  );
+
 });
 
 //搜索Staff API，目前只能GET用户名完全一致的用户
-app.get("/v1/searchStaff", (req, res) => {
-  let queryName = req.query.name;
-  let isStaff = req.query.isStaff;
-  let result = [];
-  for (let item of UserData) {
-    if (item.name == queryName && item.isStaff == isStaff) {
-      result.push(item);
-    }
-  }
-  res.send(result);
+app.get("/v1/searchStaff", async (req, res) => {
+  res.send(
+    await prisma.artist.findMany({
+      where: {
+        name: req.query.name,
+        isStaff: true,
+      },
+    })
+  );
 });
 
 //删除用户信息，会写入文件
-app.delete("/v1/deleteUser", (req, res) => {
-  for (let item of UserData) {
-    if (req.body.id == item.id) {
-      UserData.splice(req.body.id, 1);
-      break;
+app.delete("/v1/deleteUser", async (req, res) => {
+  await prisma.user.delete({
+    where:{
+      id:req.query.id
     }
-  }
-  writeFile(
-    dataRoot + "userdata.js",
-    "export default " + JSON.stringify(UserData),
-    (err) => {
-      if (!err) {
-        res.send("Success!");
-      } else {
-        res.send(err);
-      }
+  })
+});
+
+//删除CV/Staff信息，会写入文件
+app.delete("/v1/deleteArtist", async (req, res) => {
+  await prisma.artist.delete({
+    where:{
+      id:req.query.id
     }
-  );
+  })
 });
 
 //写入用户头像

@@ -7,39 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model artist {
-  id                Int            @id @default(autoincrement())
-  weiboLink         String
-  qq                String
-  isCV              Boolean
-  isStaff           Boolean
-  voiceType         String
-  soundPressure     String
-  demoLink          String
-  artistDescription String
-  functiontype      functiontype[]
-  genre             genre[]
-}
-
-model functiontype {
-  id           Int     @id @default(autoincrement())
-  functionType String
-  artistId     Int?
-  artist       artist? @relation(fields: [artistId], references: [id], map: "functionType_artistId_fkey")
-
-  @@index([artistId], map: "functionType_artistId_fkey")
-}
-
-model genre {
-  id       Int     @id @default(autoincrement())
-  genre    String
-  artistId Int?
-  artist   artist? @relation(fields: [artistId], references: [id], map: "Genre_artistId_fkey")
-
-  @@index([artistId], map: "Genre_artistId_fkey")
-}
-
-model user {
+model User {
   id              Int    @id @default(autoincrement())
   name            String
   sex             String
@@ -48,4 +16,33 @@ model user {
   UserDescription String
   email           String
   avatarLink      String
+}
+
+model Artist {
+  id                Int            @id @default(autoincrement())
+  name              String
+  weiboLink         String
+  qq                String
+  isCV              Boolean
+  isStaff           Boolean
+  voiceType         String
+  soundPressure     String
+  demoLink          String
+  artistDescription String
+  genre             Genre[]
+  functionType      functionType[]
+}
+
+model Genre {
+  id       Int     @id @default(autoincrement())
+  genre    String
+  Artist   Artist? @relation(fields: [artistId], references: [id])
+  artistId Int?
+}
+
+model functionType {
+  id           Int     @id @default(autoincrement())
+  functionType String
+  Artist       Artist? @relation(fields: [artistId], references: [id])
+  artistId     Int?
 }
