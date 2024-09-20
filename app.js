@@ -1,11 +1,12 @@
 import express from "express";
-import fs, { read } from "fs";
+import fs from "fs";
 import UserData from "./assets/data/userdata.js";
 import { trendingCV, trendingStaff } from "./assets/data/trending.js";
 import cors from "cors";
 import { promisify } from "util";
 import multer from "multer";
-import mongoose from "mongoose";
+
+
 
 const app = express();
 app.use(express.json()); // 用于解析 JSON 类型的请求体
@@ -19,28 +20,6 @@ const writeFile = promisify(fs.writeFile);
 const rename = promisify(fs.rename);
 const uploads = multer({ dest: "./public" });
 
-
-const UserSchema = new mongoose.Schema({
-  id: Number,
-  name: String,
-  phoneNumber:String,
-  weiboLink:String,
-  qq:String,
-  email:String,
-  avatarLink: String,
-  linkedUserId: Number,
-  isCV: Boolean,
-  isStaff: Boolean,
-  sex: String,
-  voiceType: String,
-  soundPressure: String,
-  demoLink: String,
-  description: String,
-  genre:[String],
-  functionType:[String]
-});
-
-mongoose.connect('mongodb://127.0.0.1:27017/myapp');
 
 //获取用户的头像
 app.get("/v1/getAvatar", (req, res) => {
