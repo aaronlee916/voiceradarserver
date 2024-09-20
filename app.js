@@ -5,8 +5,7 @@ import { trendingCV, trendingStaff } from "./assets/data/trending.js";
 import cors from "cors";
 import { promisify } from "util";
 import multer from "multer";
-
-
+import { PrismaClient } from "@prisma/client";
 
 const app = express();
 app.use(express.json()); // 用于解析 JSON 类型的请求体
@@ -19,7 +18,7 @@ const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 const rename = promisify(fs.rename);
 const uploads = multer({ dest: "./public" });
-
+const prisma = new PrismaClient();
 
 //获取用户的头像
 app.get("/v1/getAvatar", (req, res) => {
@@ -43,49 +42,34 @@ app.get("/v1/getTrendingStaff", (req, res) => {
   res.send(trendingStaff);
 });
 //获取所有用户
-app.get("/v1/getAllUsers", (req, res) => {
-  res.send(UserData);
+app.get("/v1/getAllUsers", async (req, res) => {
+  let allUsers = await prisma.user.findMany();
+  res.send(allUsers);
 });
 //获取单个用户信息
-app.get("/v1/getUser", (req, res) => {
-  let id = req.query.id;
-  for (let item of UserData) {
-    if (id == item.id) {
-      res.send(item);
-      break;
-    }
-  }
+app.get("/v1/getUser", async (req, res) => {
+  let id = Number.parseInt(req.query.id);
+  let user = await prisma.user.findUnique({
+    where: {
+      id,
+    },
+  });
+  res.send(user);
 });
 //添加用户,会写入文件
-app.post("/v1/addUser", (req, res) => {
-  let newUser = {};
-  //查找可用ID
-  for (let i = 0; i < Number.MAX_VALUE; i++) {
-    let isOccupied = false;
-    for (let item of UserData) {
-      if (item.id == i) {
-        isOccupied = true;
-        break;
-      }
-    }
-    if (!isOccupied) {
-      let newUserId = i;
-      newUser = req.body;
-      newUser.id = newUserId;
-    }
-  }
-  UserData.push(newUser);
-  fs.writeFile(
-    dataRoot + "userdata.js",
-    "export default " + JSON.stringify(UserData),
-    (err) => {
-      if (!err) {
-        res.send(UserData);
-      } else {
-        res.send(err);
-      }
-    }
-  );
+app.post("/v1/addUser", async (req, res) => {
+  let currMaxId=await prisma.user.count()
+  await prisma.user.create({
+    data: {
+      name: req.body.name,
+      sex: req.body.sex,
+      password:req.body.password,
+      email:req.body.email,
+      phoneNumber:req.body.phoneNumber,
+      UserDescription:req.body.UserDescription,
+      avatarLink:`./assets/images/${currMaxId+1}.png`
+    },
+  });
 });
 app.post("/v1/updateUser", (req, res) => {
   let newUserData = [];
@@ -158,18 +142,21 @@ app.delete("/v1/deleteUser", (req, res) => {
 
 //写入用户头像
 app.post("/v1/uploadAvatar", uploads.single("avatar"), (req, res, next) => {
-  let id = req.query.id
+  let id = req.query.id;
   let originalName = req.file.originalname;
   let fileType = originalName.split(".")[1];
-  rename(`./public/${req.file.filename}`,`./assets/images/avatars/${id}.${fileType}`)
+  rename(
+    `./public/${req.file.filename}`,
+    `./assets/images/avatars/${id}.${fileType}`
+  );
 });
 
 //写入用户音频
 app.post("/v1/uploadDemo", uploads.single("demo"), (req, res, next) => {
-  let id = req.query.id
+  let id = req.query.id;
   let originalName = req.file.originalname;
   let fileType = originalName.split(".")[1];
-  rename(`./public/${req.file.filename}`,`./assets/audio/${id}.${fileType}`)
+  rename(`./public/${req.file.filename}`, `./assets/audio/${id}.${fileType}`);
 });
 
 app.get("/v1/getDemo", (req, res) => {

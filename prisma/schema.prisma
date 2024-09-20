@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,18 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id              Int    @id @default(autoincrement())
-  name            String
-  sex             String
-  password        String
-  phoneNumber     String
-  UserDescription String
-  email           String
-  avatarLink      String
-}
-
-model Artist {
+model artist {
   id                Int            @id @default(autoincrement())
   weiboLink         String
   qq                String
@@ -34,20 +17,35 @@ model Artist {
   soundPressure     String
   demoLink          String
   artistDescription String
-  genre             Genre[]
-  functionType      functionType[]
+  functiontype      functiontype[]
+  genre             genre[]
 }
 
-model Genre {
-  id       Int     @id @default(autoincrement())
-  genre    String
-  Artist   Artist? @relation(fields: [artistId], references: [id])
-  artistId Int?
-}
-
-model functionType {
+model functiontype {
   id           Int     @id @default(autoincrement())
   functionType String
-  Artist       Artist? @relation(fields: [artistId], references: [id])
   artistId     Int?
+  artist       artist? @relation(fields: [artistId], references: [id], map: "functionType_artistId_fkey")
+
+  @@index([artistId], map: "functionType_artistId_fkey")
+}
+
+model genre {
+  id       Int     @id @default(autoincrement())
+  genre    String
+  artistId Int?
+  artist   artist? @relation(fields: [artistId], references: [id], map: "Genre_artistId_fkey")
+
+  @@index([artistId], map: "Genre_artistId_fkey")
+}
+
+model user {
+  id              Int    @id @default(autoincrement())
+  name            String
+  sex             String
+  password        String
+  phoneNumber     String
+  UserDescription String
+  email           String
+  avatarLink      String
 }
