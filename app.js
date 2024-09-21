@@ -5,6 +5,7 @@ import cors from "cors";
 import { promisify } from "util";
 import multer from "multer";
 import { PrismaClient } from "@prisma/client";
+import { encryptPassword } from "./utils/md5.js";
 
 const app = express();
 app.use(express.json()); // 用于解析 JSON 类型的请求体
@@ -57,19 +58,40 @@ app.get("/v1/getUser", async (req, res) => {
 });
 //添加用户,会写入文件
 app.post("/v1/addUser", async (req, res) => {
-  let currMaxId = await prisma.user.count();
   await prisma.user.create({
     data: {
       name: req.body.name,
       sex: req.body.sex,
-      password: req.body.password,
+      password: encryptPassword(req.body.password),
       email: req.body.email,
       phoneNumber: req.body.phoneNumber,
       UserDescription: req.body.UserDescription,
-      avatarLink: `./assets/images/${currMaxId + 1}.png`,
+      avatarLink: req.body.avatarLink,
     },
   });
+  res.send(
+    `用户${req.body.name}创建成功,ID${await prisma.user.findUnique({
+      where: {
+        email: req.body.email,
+      },
+    })}`
+  );
 });
+
+app.post("/v1/addArtist", async (req, res) => {
+  await prisma.artist.create({
+    name: req.body.name,
+    weiboLink: req.body.weiboLink,
+    qq: req.body.qq,
+    isCV: req.body.isCV,
+    isStaff: req.body.isStaff,
+    voiceType: req.body.voiceType,
+    soundPressure: req.body.soundPressure,
+    demoLink: req.body.demoLink,
+    artistDescription: req.body.artistDescription,
+  });
+});
+
 app.post("/v1/updateUser", async (req, res) => {
   let updatedUser = req.body;
   let id = req.query.id;
@@ -80,13 +102,27 @@ app.post("/v1/updateUser", async (req, res) => {
     data: {
       name: updatedUser.name,
       sex: updatedUser.sex,
-      password: updatedUser.sex,
+      password: encryptPassword(updatedUser.password),
       phoneNumber: updatedUser.phoneNumber,
       UserDescription: updatedUser.UserDescription,
       email: updatedUser.email,
     },
   });
   console.log(await prisma.user.findMany());
+});
+
+app.post("/v1/updateArtist", async (req, res) => {
+  await prisma.artist.update({
+    name: req.body.name,
+    weiboLink: req.body.weiboLink,
+    qq: req.body.qq,
+    isCV: req.body.isCV,
+    isStaff: req.body.isStaff,
+    voiceType: req.body.voiceType,
+    soundPressure: req.body.soundPressure,
+    demoLink: req.body.demoLink,
+    artistDescription: req.body.artistDescription,
+  });
 });
 
 //搜索CV API，目前只能GET用户名完全一致的用户
@@ -99,7 +135,6 @@ app.get("/v1/searchCV", async (req, res) => {
       },
     })
   );
-
 });
 
 //搜索Staff API，目前只能GET用户名完全一致的用户
@@ -117,19 +152,19 @@ app.get("/v1/searchStaff", async (req, res) => {
 //删除用户信息，会写入文件
 app.delete("/v1/deleteUser", async (req, res) => {
   await prisma.user.delete({
-    where:{
-      id:req.query.id
-    }
-  })
+    where: {
+      id: req.query.id,
+    },
+  });
 });
 
 //删除CV/Staff信息，会写入文件
 app.delete("/v1/deleteArtist", async (req, res) => {
   await prisma.artist.delete({
-    where:{
-      id:req.query.id
-    }
-  })
+    where: {
+      id: req.query.id,
+    },
+  });
 });
 
 //写入用户头像
