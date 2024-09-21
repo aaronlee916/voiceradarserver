@@ -31,7 +31,7 @@ app.use("/v1", router);
  *
  * @apiParam {Number} id Users unique ID.
  *
- * @apiSuccess {} firstname Firstname of the User.
+ * @apiSuccess {Buffer} avatar buffer.
  */
 
 router.get("/getUserAvatar", validateToken, (req, res) => {
@@ -47,14 +47,13 @@ router.get("/getUserAvatar", validateToken, (req, res) => {
 });
 
 /**
- * @api {get} /getAvatar Request User Avatar
- * @apiName GetAvatar
- * @apiGroup User
+ * @api {get} /getArtistAvatar Request Artist Avatar
+ * @apiName GetArtistAvatar
+ * @apiGroup Artist
  *
- * @apiParam {Number} id Users unique ID.
+ * @apiParam {Number} id Artists unique ID.
  *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {Buffer} Avatar Buffer.
  */
 
 router.get("/getArtistAvatar", validateToken, (req, res) => {
@@ -69,14 +68,13 @@ router.get("/getArtistAvatar", validateToken, (req, res) => {
   });
 });
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
- * @apiGroup User
+ * @api {get} /login
+ * @apiName Login
+ * @apiGroup Login
  *
- * @apiParam {Number} id Users unique ID.
- *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiParam {String} name Username
+ *@apiParam {String} password Users password.
+ * @apiSuccess {String} token Users token
  */
 router.get("/login", async (req, res) => {
   let username = req.body.name;
@@ -93,14 +91,13 @@ router.get("/login", async (req, res) => {
   }
 });
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
+ * @api {post} /register User Register
+ * @apiName Register
  * @apiGroup User
  *
- * @apiParam {Number} id Users unique ID.
+ * @apiParam {User} user User
  *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {String} 200.
  */
 router.post("/register", async (req, res) => {
   let newUser = await prisma.user.create({
@@ -117,9 +114,9 @@ router.post("/register", async (req, res) => {
   res.send("200");
 });
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
- * @apiGroup User
+ * @api {get} /getTrendingCV Request trending CVs
+ * @apiName getTrendingCV
+ * @apiGroup Artist
  *
  * @apiParam {Number} id Users unique ID.
  *
