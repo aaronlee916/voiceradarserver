@@ -9,9 +9,6 @@ import { encryptPassword } from "./utils/md5.js";
 import { generateToken, validateToken } from "./utils/jwt.js";
 
 const app = express();
-app.use(express.json()); // 用于解析 JSON 类型的请求体
-app.use(express.urlencoded({ extended: true })); // 用于解析 URL-encoded 类型的请求体
-app.use(cors());
 
 const avatarRoot = "./assets/images/avatars/";
 const dataRoot = "./assets/data/";
@@ -21,6 +18,11 @@ const rename = promisify(fs.rename);
 const uploads = multer({ dest: "./public" });
 const prisma = new PrismaClient();
 const router = express.Router();
+
+app.use(express.json()); // 用于解析 JSON 类型的请求体
+app.use(express.urlencoded({ extended: true })); // 用于解析 URL-encoded 类型的请求体
+app.use(cors());
+app.use("/", router);
 
 router
   .get("/v1/getAvatar", validateToken, (req, res) => {
