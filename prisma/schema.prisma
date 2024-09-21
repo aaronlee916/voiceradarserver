@@ -9,18 +9,19 @@ datasource db {
 
 model User {
   id              Int    @id @default(autoincrement())
-  name            String
+  nickname        String
+  name            String @unique
   sex             String
   password        String
   phoneNumber     String
   UserDescription String
   email           String
-  avatarLink      String
 }
 
 model Artist {
   id                Int            @id @default(autoincrement())
   name              String
+  sex               String
   weiboLink         String
   qq                String
   isCV              Boolean

@@ -5,7 +5,7 @@ import cors from "cors";
 import { promisify } from "util";
 import multer from "multer";
 import { PrismaClient } from "@prisma/client";
-import { encryptPassword } from "./utils/md5.js";
+import { encryptPassword, verifyPassword } from "./utils/md5.js";
 import { generateToken, validateToken } from "./utils/jwt.js";
 
 const app = express();
@@ -22,10 +22,10 @@ const router = express.Router();
 app.use(express.json()); // 用于解析 JSON 类型的请求体
 app.use(express.urlencoded({ extended: true })); // 用于解析 URL-encoded 类型的请求体
 app.use(cors());
-app.use("/", router);
+app.use("/v1", router);
 
 router
-  .get("/v1/getAvatar", validateToken, (req, res) => {
+  .get("/getAvatar", validateToken, (req, res) => {
     let id = req.query.id;
     readFile(avatarRoot + `${id}.png`, (err, data) => {
       if (!err) {
@@ -36,21 +36,50 @@ router
       }
     });
   })
-  .get("/v1/login", (req, res) => {})
-  .post("/v1/register", (req, res) => {
-    
+  .get("/login", async(req, res) => {
+    let username=req.body.name
+    let password=req.body.password
+    let user=await prisma.user.findUnique({
+      where:{
+        name:username
+      }
+    })
+    if(verifyPassword(password,user.password)){
+      res.send(await generateToken(user))
+    }
+    else{
+      res.send("密码错误！")
+    }
   })
-  .get("/v1/getTrendingCV", validateToken, (req, res) => {
+  .post("/register", async (req, res) => {
+    let newUser = await prisma.user.create({
+      data: {
+        nickname:req.body.nickname,
+        name: req.body.name,
+        sex: req.body.sex,
+        password: encryptPassword(req.body.password),
+        email: req.body.email,
+        phoneNumber: req.body.phoneNumber,
+        UserDescription: req.body.UserDescription,
+      },
+    });
+    res.send("200")
+  })
+  .get("/getTrendingCV", validateToken, (req, res) => {
     res.send(trendingCV);
   })
-  .get("/v1/getTrendingStaff", validateToken, (req, res) => {
+  .get("/getTrendingStaff", validateToken, (req, res) => {
     res.send(trendingStaff);
   })
-  .get("/v1/getAllUsers", validateToken, async (req, res) => {
+  .get("/getAllUsers", validateToken, async (req, res) => {
     let allUsers = await prisma.user.findMany();
     res.send(allUsers);
   })
-  .get("/v1/getUser", validateToken, async (req, res) => {
+  .get("/getAllArtists", validateToken, async (req, res) => {
+    let allArtists = await prisma.artist.findMany();
+    res.send(allArtists);
+  })
+  .get("/getUser", validateToken, async (req, res) => {
     let id = Number.parseInt(req.query.id);
     let user = await prisma.user.findUnique({
       where: {
@@ -59,22 +88,7 @@ router
     });
     res.send(user);
   })
-  .post("/v1/addUser", async (req, res) => {
-    let newUser = await prisma.user.create({
-      data: {
-        name: req.body.name,
-        sex: req.body.sex,
-        password: encryptPassword(req.body.password),
-        email: req.body.email,
-        phoneNumber: req.body.phoneNumber,
-        UserDescription: req.body.UserDescription,
-        avatarLink: req.body.avatarLink,
-      },
-    });
-    newUser.token = await generateToken(newUser);
-    res.send(newUser);
-  })
-  .post("/v1/addArtist", validateToken, async (req, res) => {
+  .post("/addArtist", validateToken, async (req, res) => {
     await prisma.artist.create({
       name: req.body.name,
       weiboLink: req.body.weiboLink,
@@ -87,7 +101,7 @@ router
       artistDescription: req.body.artistDescription,
     });
   })
-  .post("/v1/updateUser", validateToken, async (req, res) => {
+  .post("/updateUser", validateToken, async (req, res) => {
     let updatedUser = req.body;
     let id = req.query.id;
     await prisma.user.update({
@@ -105,7 +119,7 @@ router
     });
     console.log(await prisma.user.findMany());
   })
-  .post("/v1/updateArtist", validateToken, async (req, res) => {
+  .post("/updateArtist", validateToken, async (req, res) => {
     await prisma.artist.update({
       name: req.body.name,
       weiboLink: req.body.weiboLink,
@@ -118,7 +132,7 @@ router
       artistDescription: req.body.artistDescription,
     });
   })
-  .get("/v1/searchCV", validateToken, async (req, res) => {
+  .get("/searchCV", validateToken, async (req, res) => {
     let cv = await prisma.artist.findMany({
       where: {
         name: req.query.name,
@@ -127,7 +141,7 @@ router
     });
     res.send(generateToken(cv));
   })
-  .get("/v1/searchStaff", validateToken, async (req, res) => {
+  .get("/searchStaff", validateToken, async (req, res) => {
     let staffs = await prisma.artist.findMany({
       where: {
         name: req.query.name,
@@ -136,14 +150,14 @@ router
     });
     res.send(generateToken(staffs));
   })
-  .delete("/v1/deleteUser", validateToken, async (req, res) => {
+  .delete("/deleteUser", validateToken, async (req, res) => {
     await prisma.user.delete({
       where: {
         id: req.query.id,
       },
     });
   })
-  .delete("/v1/deleteArtist", validateToken, async (req, res) => {
+  .delete("/deleteArtist", validateToken, async (req, res) => {
     await prisma.artist.delete({
       where: {
         id: req.query.id,
@@ -151,7 +165,7 @@ router
     });
   })
   .post(
-    "/v1/uploadAvatar",
+    "/uploadAvatar",
     validateToken,
     uploads.single("avatar"),
     (req, res, next) => {
@@ -162,10 +176,11 @@ router
         `./public/${req.file.filename}`,
         `./assets/images/avatars/${id}.${fileType}`
       );
+      res.send("Success!")
     }
   )
   .post(
-    "/v1/uploadDemo",
+    "/uploadDemo",
     validateToken,
     uploads.single("demo"),
     (req, res, next) => {
@@ -178,7 +193,7 @@ router
       );
     }
   )
-  .get("/v1/getDemo", validateToken, (req, res) => {
+  .get("/getDemo", validateToken, (req, res) => {
     let id = req.query.id;
     readFile(`assets/audio/${id}.mp3`, (err, data) => {
       res.send(data);
