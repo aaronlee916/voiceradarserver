@@ -7,7 +7,7 @@
   cacheDir: 'C:\\Users\\lichenyun\\.npminstall_tarball',
   env: {
     npm_config_registry: 'https://registry.npmmirror.com',
-    npm_config_argv: '{"remain":[],"cooked":["--fix-bug-versions","--china","--userconfig=C:\\\\Users\\\\lichenyun\\\\.cnpmrc","--disturl=https://cdn.npmmirror.com/binaries/node","--registry=https://registry.npmmirror.com","-g","nodemon"],"original":["--fix-bug-versions","--china","--userconfig=C:\\\\Users\\\\lichenyun\\\\.cnpmrc","--disturl=https://cdn.npmmirror.com/binaries/node","--registry=https://registry.npmmirror.com","-g","nodemon"]}',
+    npm_config_argv: '{"remain":[],"cooked":["--fix-bug-versions","--china","--userconfig=C:\\\\Users\\\\lichenyun\\\\.cnpmrc","--disturl=https://cdn.npmmirror.com/binaries/node","--registry=https://registry.npmmirror.com","apidoc","-g"],"original":["--fix-bug-versions","--china","--userconfig=C:\\\\Users\\\\lichenyun\\\\.cnpmrc","--disturl=https://cdn.npmmirror.com/binaries/node","--registry=https://registry.npmmirror.com","apidoc","-g"]}',
     npm_config_user_agent: 'npminstall/7.12.0 npm/? node/v20.17.0 win32 x64',
     npm_config_cache: 'C:\\Users\\lichenyun\\.npminstall_tarball',
     NODE: 'C:\\Program Files\\nodejs\\node.exe',
