@@ -36,6 +36,10 @@ router
       }
     });
   })
+  .get("/v1/login", (req, res) => {})
+  .post("/v1/register", (req, res) => {
+    
+  })
   .get("/v1/getTrendingCV", validateToken, (req, res) => {
     res.send(trendingCV);
   })
