@@ -118,64 +118,51 @@ router.post("/register", async (req, res) => {
  * @apiName getTrendingCV
  * @apiGroup Artist
  *
- * @apiParam {Number} id Users unique ID.
- *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {Number[]} List of trendingCV id
  */
 router.get("/getTrendingCV", validateToken, (req, res) => {
   res.send(trendingCV);
 });
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
- * @apiGroup User
+ * @api {get} /getTrendingStaff Request trending Staffs
+ * @apiName getTrendingStaff
+ * @apiGroup Artist
  *
- * @apiParam {Number} id Users unique ID.
- *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {Number[]} List of trendingStaff id
  */
 router.get("/getTrendingStaff", validateToken, (req, res) => {
   res.send(trendingStaff);
 });
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
+ * @api {get} /getAllUsers Request all User information
+ * @apiName GetAllUsers
  * @apiGroup User
  *
- * @apiParam {Number} id Users unique ID.
- *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {Object[]} All Users
  */
 router.get("/getAllUsers", validateToken, async (req, res) => {
   let allUsers = await prisma.user.findMany();
   res.send(allUsers);
 });
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
- * @apiGroup User
+ * @api {get} /getAllArtists Request All Artists
+ * @apiName GetAllArtists
+ * @apiGroup Artists
  *
- * @apiParam {Number} id Users unique ID.
- *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {Object[]} All artists
  */
 router.get("/getAllArtists", validateToken, async (req, res) => {
   let allArtists = await prisma.artist.findMany();
   res.send(allArtists);
 });
 /**
- * @api {get} /user/:id Request User information
+ * @api {get} /getUser get a single user
  * @apiName GetUser
  * @apiGroup User
  *
  * @apiParam {Number} id Users unique ID.
  *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {Object} User.
  */
 router.get("/getUser", validateToken, async (req, res) => {
   let id = Number.parseInt(req.query.id);
@@ -187,14 +174,13 @@ router.get("/getUser", validateToken, async (req, res) => {
   res.send(user);
 });
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
- * @apiGroup User
+ * @api {get} /addArtist Add an artist
+ * @apiName AddArtist
+ * @apiGroup Artist
  *
- * @apiParam {Number} id Users unique ID.
+ * @apiParam {Object} artist Artist Information
  *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {String} null
  */
 router.post("/addArtist", validateToken, async (req, res) => {
   await prisma.artist.create({
@@ -210,14 +196,14 @@ router.post("/addArtist", validateToken, async (req, res) => {
   });
 });
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
+ * @api {post} /updateUser Update User Information
+ * @apiName updateUser
  * @apiGroup User
  *
- * @apiParam {Number} id Users unique ID.
+ * @apiParam {Object} user Users unique ID.
  *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {String} Null.
+
  */
 router.post("/updateUser", validateToken, async (req, res) => {
   let updatedUser = req.body;
@@ -235,17 +221,16 @@ router.post("/updateUser", validateToken, async (req, res) => {
       email: updatedUser.email,
     },
   });
-  console.log(await prisma.user.findMany());
 });
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
- * @apiGroup User
+ * @api {post} /updateArtist Update User Information
+ * @apiName updateArtist
+ * @apiGroup Artist
  *
- * @apiParam {Number} id Users unique ID.
+ * @apiParam {Object} artist Artist unique ID.
  *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {String} Null.
+
  */
 router.post("/updateArtist", validateToken, async (req, res) => {
   await prisma.artist.update({
@@ -261,14 +246,13 @@ router.post("/updateArtist", validateToken, async (req, res) => {
   });
 });
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
- * @apiGroup User
+ * @api {get} /searchCV Request CV information
+ * @apiName SearchCV
+ * @apiGroup Artist
  *
- * @apiParam {Number} id Users unique ID.
+ * @apiParam {String} name User name
  *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {Object[]} List of matching CVs
  */
 router.get("/searchCV", validateToken, async (req, res) => {
   let cv = await prisma.artist.findMany({
@@ -280,14 +264,13 @@ router.get("/searchCV", validateToken, async (req, res) => {
   res.send(generateToken(cv));
 });
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
- * @apiGroup User
+ * @api {get} /searchStaff Request Staff information
+ * @apiName SearchStaff
+ * @apiGroup Artist
  *
- * @apiParam {Number} id Users unique ID.
+ * @apiParam {String} name User name
  *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {Object[]} List of matching Staffs
  */
 router.get("/searchStaff", validateToken, async (req, res) => {
   let staffs = await prisma.artist.findMany({
@@ -299,14 +282,13 @@ router.get("/searchStaff", validateToken, async (req, res) => {
   res.send(generateToken(staffs));
 });
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
+ * @api {delete} /deleteUser Delete User Information
+ * @apiName DeleteUser
  * @apiGroup User
  *
  * @apiParam {Number} id Users unique ID.
  *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {String} Null.
  */
 router.delete("/deleteUser", validateToken, async (req, res) => {
   await prisma.user.delete({
@@ -316,14 +298,13 @@ router.delete("/deleteUser", validateToken, async (req, res) => {
   });
 });
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
- * @apiGroup User
+ * @api {delete} /deleteArtist Delete Artist Information
+ * @apiName DeleteArtist
+ * @apiGroup Artist
  *
  * @apiParam {Number} id Users unique ID.
  *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {String} Null.
  */
 router.delete("/deleteArtist", validateToken, async (req, res) => {
   await prisma.artist.delete({
