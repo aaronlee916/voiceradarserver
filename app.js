@@ -203,6 +203,7 @@ router.post("/addArtist", validateToken, async (req, res) => {
     functionType:req.body.functionType,
     genre:req.body.genre
   });
+  res.send('200')
 });
 /**
  * @api {post} /updateUser Update User Information
