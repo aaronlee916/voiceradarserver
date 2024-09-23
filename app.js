@@ -200,6 +200,8 @@ router.post("/addArtist", validateToken, async (req, res) => {
     soundPressure: req.body.soundPressure,
     demoLink: req.body.demoLink,
     artistDescription: req.body.artistDescription,
+    functionType:req.body.functionType,
+    genre:req.body.genre
   });
 });
 /**
