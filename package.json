@@ -36,6 +36,6 @@
     "version": "0.1.0",
     "description": "VoiceRadar APIDoc",
     "title": "VoiceRadar APIdoc",
-    "url" : "https://voiceradar-ergxdlfdwj.cn-shanghai.fcapp.run/"
+    "url" : "https://voiceradar-ergxdlfdwj.cn-shanghai.fcapp.run/v1"
   }
 }

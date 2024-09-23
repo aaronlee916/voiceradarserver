@@ -77,8 +77,8 @@ router.get("/getArtistAvatar", validateToken, (req, res) => {
  * @apiSuccess {String} token Users token
  */
 router.get("/login", async (req, res) => {
-  let username = req.body.name;
-  let password = req.body.password;
+  let username = req.query.name;
+  let password = req.query.password;
   let user = await prisma.user.findUnique({
     where: {
       name: username,
@@ -314,14 +314,13 @@ router.delete("/deleteArtist", validateToken, async (req, res) => {
   });
 });
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
+ * @api {post} /uploadUserAvatar Upload User Avatar
+ * @apiName UploadUserAvatar
  * @apiGroup User
  *
  * @apiParam {Number} id Users unique ID.
- *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiParam {File} file Avatar File
+ * @apiSuccess {String} Success
  */
 router.post(
   "/uploadUserAvatar",
@@ -336,17 +335,17 @@ router.post(
       `./assets/images/useravatars/${id}.${fileType}`
     );
     res.send("Success!");
+    next()
   }
 );
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
- * @apiGroup User
+ * @api {post} /uploadArtistAvatar Upload Artist Avatar
+ * @apiName UploadArtistAvatar
+ * @apiGroup Artist
  *
  * @apiParam {Number} id Users unique ID.
- *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiParam {File} avatar AvatarFile
+ * @apiSuccess {String} Success
  */
 router.post(
   "/uploadArtistAvatar",
@@ -361,17 +360,19 @@ router.post(
       `./assets/images/artistavatars/${id}.${fileType}`
     );
     res.send("Success!");
+    next()
   }
 );
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
- * @apiGroup User
+ * @api {post} /uploadDemo Upload Demo Audio
+ * @apiName UploadDemo
+ * @apiGroup Artist
  *
  * @apiParam {Number} id Users unique ID.
  *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiParam {File} file Users Demo File
+ * 
+ * @apiSuccess {String} Success
  */
 router.post(
   "/uploadDemo",
@@ -385,14 +386,13 @@ router.post(
   }
 );
 /**
- * @api {get} /user/:id Request User information
- * @apiName GetUser
- * @apiGroup User
+ * @api {get} /getDemo Request User Demo
+ * @apiName GetDemo
+ * @apiGroup Artist
  *
  * @apiParam {Number} id Users unique ID.
  *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {File} file Buffer of Demo File
  */
 router.get("/getDemo", validateToken, (req, res) => {
   let id = req.query.id;
