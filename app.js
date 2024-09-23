@@ -157,7 +157,12 @@ router.get("/getAllUsers", validateToken, async (req, res) => {
  * @apiSuccess {Object[]} All artists
  */
 router.get("/getAllArtists", validateToken, async (req, res) => {
-  let allArtists = await prisma.artist.findMany();
+  let allArtists = await prisma.artist.findMany({
+    include:{
+      genre:true,
+      functionType:true
+    }
+  });
   res.send(allArtists);
 });
 /**
@@ -190,20 +195,27 @@ router.get("/getUser", validateToken, async (req, res) => {
  */
 router.post("/addArtist", validateToken, async (req, res) => {
   await prisma.artist.create({
-    name: req.body.name,
-    weiboLink: req.body.weiboLink,
-    email:req.body.email,
-    qq: req.body.qq,
-    isCV: req.body.isCV,
-    isStaff: req.body.isStaff,
-    voiceType: req.body.voiceType,
-    soundPressure: req.body.soundPressure,
-    demoLink: req.body.demoLink,
-    artistDescription: req.body.artistDescription,
-    functionType:req.body.functionType,
-    genre:req.body.genre
+    data: {
+      name: req.body.name,
+      weiboLink: req.body.weiboLink,
+      email: req.body.email,
+      sex: req.body.sex,
+      qq: req.body.qq,
+      isCV: req.body.isCV,
+      isStaff: req.body.isStaff,
+      voiceType: req.body.voiceType,
+      soundPressure: req.body.soundPressure,
+      demoLink: req.body.demoLink,
+      artistDescription: req.body.artistDescription,
+      genre: {
+        create: req.body.genre.map(genre => ({ genre: genre })),
+      },
+      functionType: {
+        create: req.body.functionType.map(functionType => ({ functionType: functionType })),
+      },
+    },
   });
-  res.send('200')
+  res.status(200).send("Success!")
 });
 /**
  * @api {post} /updateUser Update User Information
