@@ -22,6 +22,7 @@ model Artist {
   id                Int            @id @default(autoincrement())
   name              String
   sex               String
+  email             String
   weiboLink         String
   qq                String
   isCV              Boolean

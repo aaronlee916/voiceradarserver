@@ -77,7 +77,8 @@ router.get("/getArtistAvatar", validateToken, (req, res) => {
  * @apiSuccess {String} token Users token
  */
 router.get("/login", async (req, res) => {
-  let username = req.query.name;
+  try{
+    let username = req.query.name;
   let password = req.query.password;
   let user = await prisma.user.findUnique({
     where: {
@@ -88,6 +89,9 @@ router.get("/login", async (req, res) => {
     res.send(await generateToken(user));
   } else {
     res.send("密码错误！");
+  }
+  }catch(err){
+    res.send(res.status(400).json({err}))
   }
 });
 /**
@@ -142,6 +146,7 @@ router.get("/getTrendingStaff", validateToken, (req, res) => {
  */
 router.get("/getAllUsers", validateToken, async (req, res) => {
   let allUsers = await prisma.user.findMany();
+  
   res.send(allUsers);
 });
 /**
@@ -171,6 +176,7 @@ router.get("/getUser", validateToken, async (req, res) => {
       id,
     },
   });
+  console.log(req.headers)
   res.send(user);
 });
 /**
@@ -186,6 +192,7 @@ router.post("/addArtist", validateToken, async (req, res) => {
   await prisma.artist.create({
     name: req.body.name,
     weiboLink: req.body.weiboLink,
+    email:req.body.email,
     qq: req.body.qq,
     isCV: req.body.isCV,
     isStaff: req.body.isStaff,
