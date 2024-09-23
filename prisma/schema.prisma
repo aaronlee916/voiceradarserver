@@ -37,7 +37,7 @@ model Artist {
 
 model Genre {
   id       Int     @id @default(autoincrement())
-  
+  genre    String
   Artist   Artist? @relation(fields: [artistId], references: [id])
   artistId Int?
 }

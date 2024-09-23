@@ -208,7 +208,7 @@ router.post("/addArtist", validateToken, async (req, res) => {
       demoLink: req.body.demoLink,
       artistDescription: req.body.artistDescription,
       genre: {
-        create: req.body.genre.map(genre => ({ genre: genre })),
+        create: req.body.genre.map(item => ({ genre:item })),
       },
       functionType: {
         create: req.body.functionType.map(functionType => ({ functionType: functionType })),
