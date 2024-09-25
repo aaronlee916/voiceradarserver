@@ -2,7 +2,6 @@ import express from "express";
 import fs from "fs";
 import { trendingCV, trendingStaff } from "./assets/data/trending.js";
 import cors from "cors";
-import { promisify } from "util";
 import multer from "multer";
 import { PrismaClient } from "@prisma/client";
 import { encryptPassword, verifyPassword } from "./utils/md5.js";
@@ -12,9 +11,6 @@ const app = express();
 
 const avatarRoot = "./assets/images/";
 const dataRoot = "./assets/data/";
-const readFile = promisify(fs.readFile);
-const writeFile = promisify(fs.writeFile);
-const rename = promisify(fs.rename);
 const uploads = multer({ dest: "./public" });
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -56,14 +52,14 @@ router.get("/getUserAvatar", validateToken, (req, res) => {
  * @apiSuccess {Buffer} Avatar Buffer.
  */
 
-router.get("/getArtistAvatar", validateToken, (req, res) => {
+router.get("/getArtistAvatar", validateToken, async (req, res) => {
   let id = req.query.id;
-  readFile(avatarRoot + `artistavatars/${id}.png`, (err, data) => {
+  await fs.readFile(avatarRoot + `artistavatars/${id}.png`, (err, data) => {
     if (!err) {
-      res.set("Content-Type", "image/jpeg");
-      res.send(data);
+      res.set("Content-Type", "image/png").send(data);
     } else {
       console.log(err);
+      res.send(err)
     }
   });
 });
@@ -352,7 +348,7 @@ router.post(
     let id = req.query.id;
     let originalName = req.file.originalname;
     let fileType = originalName.split(".")[1];
-    rename(
+    fs.rename(
       `./public/${req.file.filename}`,
       `./assets/images/useravatars/${id}.${fileType}`
     );
@@ -403,7 +399,8 @@ router.post(
   (req, res, next) => {
     let id = req.query.id;
     let originalName = req.file.originalname;
-    let fileType = originalName.split(".")[1];
+    let fileTypeArr = originalName.split(".");
+    let fileType=fileTypeArr[fileTypeArr.length-1]
     rename(`./public/${req.file.filename}`, `./assets/audio/${id}.${fileType}`);
   }
 );
@@ -418,7 +415,7 @@ router.post(
  */
 router.get("/getDemo", validateToken, (req, res) => {
   let id = req.query.id;
-  readFile(`assets/audio/${id}.mp3`, (err, data) => {
+  fs.readFile(`assets/audio/${id}.mp3`, (err, data) => {
     res.send(data);
   });
 });
