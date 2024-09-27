@@ -59,7 +59,7 @@ router.get("/getArtistAvatar", validateToken, async (req, res) => {
       res.set("Content-Type", "image/png").send(data);
     } else {
       console.log(err);
-      res.send(err)
+      res.send(err);
     }
   });
 });
@@ -73,21 +73,21 @@ router.get("/getArtistAvatar", validateToken, async (req, res) => {
  * @apiSuccess {String} token Users token
  */
 router.get("/login", async (req, res) => {
-  try{
+  try {
     let username = req.query.name;
-  let password = req.query.password;
-  let user = await prisma.user.findUnique({
-    where: {
-      name: username,
-    },
-  });
-  if (verifyPassword(password, user.password)) {
-    res.send(await generateToken(user));
-  } else {
-    res.send("密码错误！");
-  }
-  }catch(err){
-    res.send(res.status(400).json({err}))
+    let password = req.query.password;
+    let user = await prisma.user.findUnique({
+      where: {
+        name: username,
+      },
+    });
+    if (verifyPassword(password, user.password)) {
+      res.send(await generateToken(user));
+    } else {
+      res.send("密码错误！");
+    }
+  } catch (err) {
+    res.send(res.status(400).json({ err }));
   }
 });
 /**
@@ -142,7 +142,7 @@ router.get("/getTrendingStaff", validateToken, (req, res) => {
  */
 router.get("/getAllUsers", validateToken, async (req, res) => {
   let allUsers = await prisma.user.findMany();
-  
+
   res.send(allUsers);
 });
 /**
@@ -154,10 +154,10 @@ router.get("/getAllUsers", validateToken, async (req, res) => {
  */
 router.get("/getAllArtists", validateToken, async (req, res) => {
   let allArtists = await prisma.artist.findMany({
-    include:{
-      genre:true,
-      functionType:true
-    }
+    include: {
+      genre: true,
+      functionType: true,
+    },
   });
   res.send(allArtists);
 });
@@ -177,9 +177,31 @@ router.get("/getUser", validateToken, async (req, res) => {
       id,
     },
   });
-  console.log(req.headers)
+  console.log(req.headers);
   res.send(user);
 });
+
+/**
+ * @api {get} /getUserId get a single user
+ * @apiName GetUserId
+ * @apiGroup User
+ *
+ * @apiParam {String[]} [Username,password]
+ *
+ * @apiSuccess {Number} id Users unique ID.
+ */
+router.get("/getUserId", validateToken, async (req, res) => {
+  let name = req.query.username;
+  let password = req.query.password;
+  let user = await prisma.user.findUnique({
+    where: {
+      name,
+      password:encryptPassword(password),
+    },
+  });
+  res.send(user.id.toString());
+});
+
 /**
  * @api {get} /addArtist Add an artist
  * @apiName AddArtist
@@ -204,14 +226,16 @@ router.post("/addArtist", validateToken, async (req, res) => {
       demoLink: req.body.demoLink,
       artistDescription: req.body.artistDescription,
       genre: {
-        create: req.body.genre.map(item => ({ genre:item })),
+        create: req.body.genre.map((item) => ({ genre: item })),
       },
       functionType: {
-        create: req.body.functionType.map(functionType => ({ functionType: functionType })),
+        create: req.body.functionType.map((functionType) => ({
+          functionType: functionType,
+        })),
       },
     },
   });
-  res.status(200).send("Success!")
+  res.status(200).send("Success!");
 });
 /**
  * @api {post} /updateUser Update User Information
@@ -353,7 +377,7 @@ router.post(
       `./assets/images/useravatars/${id}.${fileType}`
     );
     res.send("Success!");
-    next()
+    next();
   }
 );
 /**
@@ -378,7 +402,7 @@ router.post(
       `./assets/images/artistavatars/${id}.${fileType}`
     );
     res.send("Success!");
-    next()
+    next();
   }
 );
 /**
@@ -389,7 +413,7 @@ router.post(
  * @apiParam {Number} id Users unique ID.
  *
  * @apiParam {File} file Users Demo File
- * 
+ *
  * @apiSuccess {String} Success
  */
 router.post(
@@ -400,7 +424,7 @@ router.post(
     let id = req.query.id;
     let originalName = req.file.originalname;
     let fileTypeArr = originalName.split(".");
-    let fileType=fileTypeArr[fileTypeArr.length-1]
+    let fileType = fileTypeArr[fileTypeArr.length - 1];
     rename(`./public/${req.file.filename}`, `./assets/audio/${id}.${fileType}`);
   }
 );
